@@ -38,12 +38,12 @@ type NvidiaDevicePlugin struct {
 	ResourceManager
 	resourceName   string
 	allocateEnvvar string
-	socket string
+	socket         string
 
-	server *grpc.Server
+	server        *grpc.Server
 	cachedDevices []*Device
-	health chan *Device
-	stop   chan interface{}
+	health        chan *Device
+	stop          chan interface{}
 }
 
 // NewNvidiaDevicePlugin returns an initialized NvidiaDevicePlugin
@@ -106,11 +106,14 @@ func (m *NvidiaDevicePlugin) Start() error {
 
 // Stop stops the gRPC server.
 func (m *NvidiaDevicePlugin) Stop() error {
-	if m == nil || m.server == nil {
+	if m == nil {
 		return nil
 	}
-	log.Printf("Stopping to serve '%s' on %s", m.resourceName, m.socket)
-	m.server.Stop()
+	if m.server != nil {
+		log.Printf("Stopping to serve '%s' on %s", m.resourceName, m.socket)
+		m.server.Stop()
+	}
+
 	if err := os.Remove(m.socket); err != nil && !os.IsNotExist(err) {
 		return err
 	}
